@@ -1,8 +1,11 @@
 const canvas = document.querySelector(".gameCanvas");
 const ctx = canvas.getContext("2d");
 
-canvas.width = 400;
-canvas.height = 600;
+const musique = new Audio("/assets/musique-flappy-bird.mp3");
+const mort = new Audio("/assets/ouin-ouin-ouinnnnn.mp3");
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
 
 let y = 0;
 let vilocite = 0;
@@ -15,19 +18,27 @@ const TROU = 170;
 
 let listPoto = [];
 
+let intervalPoto;
+let boucle;
+
+menuStart();
 // --------------initialisation----------
 function initTouche() {
   document.addEventListener("keydown", (event) => {
     if (event.key === " " && dernierAppuie) {
       vilocite = -5;
       dernierAppuie = false;
-      window.setInterval((dernierAppuie = true), 200);
+      setTimeout(() => {
+        dernierAppuie = true;
+      }, 200);
     }
   });
   document.addEventListener("click", () => {
     vilocite = -5;
     dernierAppuie = false;
-    window.setInterval((dernierAppuie = true), 200);
+    setTimeout(() => {
+      dernierAppuie = true;
+    }, 200);
   });
 }
 
@@ -36,6 +47,7 @@ function initTerrain() {
   terrain.src = "/assets/terrain.jpeg";
   ctx.drawImage(terrain, 0, 0, canvas.width, canvas.height);
 }
+
 // --------------mouvement--------------
 function drawBird() {
   const bird = new Image();
@@ -55,8 +67,12 @@ function reset() {
 
 // --------------mort----------------
 function testDead() {
-  if (y < 0 || y > 530 || testPoto()) {
+  if (y < 0 || y > canvas.height - 70 - 30 || testPoto()) {
     setHighScore(score);
+    mort.play();
+    musique.pause();
+    musique.currentTime = 0;
+    stopGame();
     menuDead();
   }
 }
@@ -72,21 +88,76 @@ function testPoto() {
   return false;
 }
 
+// --------------menu----------------
 function menuDead() {
-  clearInterval(boucle);
   ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.textAlign = "center";
   ctx.fillStyle = "white";
-  ctx.font = "30px Arial";
-  ctx.fillText("Game Over", 120, 200);
-  ctx.font = "20px Arial";
-  ctx.fillText("Score: " + score, 150, 270);
-  ctx.fillText("High Score: " + getHighScore(), 120, 320);
-  ctx.font = "16px Arial";
-  ctx.fillText("Appuyez pour rejouer", 120, 400);
-  document.addEventListener("click", () => {
-    location.reload();
-  });
+  ctx.strokeStyle = "black";
+  ctx.lineWidth = 3;
+  ctx.font = "20px 'Press Start 2P'";
+  ctx.strokeText("Game Over", canvas.width / 2, canvas.height / 2 - 100);
+  ctx.fillText("Game Over", canvas.width / 2, canvas.height / 2 - 100);
+
+  ctx.font = "12px 'Press Start 2P'";
+  ctx.strokeText("Score: " + score, canvas.width / 2, canvas.height / 2);
+  ctx.fillText("Score: " + score, canvas.width / 2, canvas.height / 2);
+  ctx.strokeText(
+    "High Score: " + getHighScore(),
+    canvas.width / 2,
+    canvas.height / 2 + 50,
+  );
+  ctx.fillText(
+    "High Score: " + getHighScore(),
+    canvas.width / 2,
+    canvas.height / 2 + 50,
+  );
+
+  ctx.font = "10px 'Press Start 2P'";
+  ctx.strokeText(
+    "Appuyez pour rejouer",
+    canvas.width / 2,
+    canvas.height / 2 + 130,
+  );
+  ctx.fillText(
+    "Appuyez pour rejouer",
+    canvas.width / 2,
+    canvas.height / 2 + 130,
+  );
+
+  setTimeout(() => {
+    document.addEventListener("click", () => location.reload(), { once: true });
+  }, 500);
+}
+
+function menuStart() {
+  ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.textAlign = "center";
+  ctx.fillStyle = "white";
+  ctx.strokeStyle = "black";
+  ctx.lineWidth = 3;
+
+  ctx.font = "20px 'Press Start 2P'";
+  ctx.strokeText("Flappy Bird", canvas.width / 2, canvas.height / 2 - 100);
+  ctx.fillText("Flappy Bird", canvas.width / 2, canvas.height / 2 - 100);
+
+  ctx.font = "10px 'Press Start 2P'";
+  ctx.strokeText(
+    "Appuyez pour commencer",
+    canvas.width / 2,
+    canvas.height / 2 + 50,
+  );
+  ctx.fillText(
+    "Appuyez pour commencer",
+    canvas.width / 2,
+    canvas.height / 2 + 50,
+  );
+
+  setTimeout(() => {
+    document.addEventListener("click", () => startGame(), { once: true });
+  }, 500);
 }
 
 // --------------poto----------------
@@ -102,7 +173,7 @@ function drawPoto() {
       poto.x,
       poto.y + TROU,
       40,
-      537 - poto.y - TROU,
+      canvas.height - 70 - poto.y - TROU,
     );
   }
 }
@@ -110,7 +181,7 @@ function drawPoto() {
 function addPoto() {
   const poto = {
     x: canvas.width,
-    y: Math.random() * (400 - TROU) + 100,
+    y: Math.random() * (canvas.height - TROU - 200) + 100,
   };
   listPoto.push(poto);
 }
@@ -139,36 +210,45 @@ function setHighScore(score) {
   }
 }
 
+function drawScore() {
+  ctx.fillStyle = "white";
+  ctx.strokeStyle = "black";
+  ctx.lineWidth = 3;
+  ctx.font = "14px 'Press Start 2P'";
+  ctx.strokeText(score, canvas.width - 50, canvas.height - 40);
+  ctx.fillText(score, canvas.width - 50, canvas.height - 40);
+}
+
 // --------------speed----------------
 function majSpeed() {
   if (score % 5 === 0) {
-    timePoto -= 20;
     timeRefresh -= 1;
-    clearInterval(addPoto);
-    window.setInterval(addPoto, timePoto);
     clearInterval(boucle);
-    window.setInterval(() => {
-      reset();
-      initTerrain();
-      drawBird();
-      majCoBird();
-      drawPoto();
-      testDead();
-      majPoto();
-    }, timeRefresh);
+    boucle = setInterval(gameTick, timeRefresh);
   }
 }
-// --------------initialisation----------------
-window.setInterval(addPoto, timePoto);
-initTouche();
 
-// ---------------boucle----------------
-const boucle = setInterval(() => {
+function stopGame() {
+  clearInterval(boucle);
+  clearInterval(intervalPoto);
+}
+
+function gameTick() {
   reset();
   initTerrain();
   drawBird();
   majCoBird();
   drawPoto();
+  drawScore();
   testDead();
   majPoto();
-}, timeRefresh);
+}
+
+// --------------initialisation----------------
+function startGame() {
+  musique.loop = true;
+  musique.play();
+  intervalPoto = window.setInterval(addPoto, timePoto);
+  initTouche();
+  boucle = setInterval(gameTick, timeRefresh);
+}
