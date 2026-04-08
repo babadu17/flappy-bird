@@ -51,9 +51,7 @@ function initTouche() {
 }
 
 function initTerrain() {
-  const terrain = new Image();
-  terrain.src = "/assets/terrain.jpeg";
-  ctx.drawImage(terrain, 0, 0, canvas.width, canvas.height);
+  ctx.drawImage(imgTerrain, 0, 0, canvas.width, canvas.height);
 }
 
 // --------------mouvement--------------
