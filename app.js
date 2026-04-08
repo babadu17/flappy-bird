@@ -30,7 +30,6 @@ let listPoto = [];
 let intervalPoto;
 let boucle;
 
-menuStart();
 // --------------initialisation----------
 function initTouche() {
   document.addEventListener("keydown", (event) => {
@@ -255,3 +254,12 @@ function startGame() {
   initTouche();
   boucle = setInterval(gameTick, timeRefresh);
 }
+
+Promise.all([
+  new Promise((res) => (imgTerrain.onload = res)),
+  new Promise((res) => (imgBird.onload = res)),
+  new Promise((res) => (imgPotoTop.onload = res)),
+  new Promise((res) => (imgPotoBottom.onload = res)),
+]).then(() => {
+  menuStart();
+});
