@@ -4,6 +4,15 @@ const ctx = canvas.getContext("2d");
 const musique = new Audio("/assets/musique-flappy-bird.mp3");
 const mort = new Audio("/assets/ouin-ouin-ouinnnnn.mp3");
 
+const imgTerrain = new Image();
+imgTerrain.src = "/assets/terrain.jpeg";
+const imgBird = new Image();
+imgBird.src = "/assets/bird.png";
+const imgPotoTop = new Image();
+imgPotoTop.src = "/assets/potoTop.png";
+const imgPotoBottom = new Image();
+imgPotoBottom.src = "/assets/potoBottom.png";
+
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
@@ -50,9 +59,7 @@ function initTerrain() {
 
 // --------------mouvement--------------
 function drawBird() {
-  const bird = new Image();
-  bird.src = "/assets/bird.png";
-  ctx.drawImage(bird, 40, y, 55, 40);
+  ctx.drawImage(imgBird, 40, y, 55, 40);
 }
 
 function majCoBird() {
@@ -163,10 +170,6 @@ function menuStart() {
 // --------------poto----------------
 function drawPoto() {
   for (let poto of listPoto) {
-    imgPotoTop = new Image();
-    imgPotoTop.src = "/assets/potoTop.png";
-    imgPotoBottom = new Image();
-    imgPotoBottom.src = "/assets/potoBottom.png";
     ctx.drawImage(imgPotoTop, poto.x, 0, 40, poto.y);
     ctx.drawImage(
       imgPotoBottom,
